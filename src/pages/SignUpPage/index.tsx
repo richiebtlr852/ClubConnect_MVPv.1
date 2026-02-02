@@ -35,8 +35,8 @@ export function SignUpPage(): JSX.Element {
     validate: zod4Resolver(SignupSchema),
   });
 
-  const handleSubmit = (values: SignupFormValues) => {
-    mutateAsync(values).catch(console.log);
+  const handleSubmit = async (values: SignupFormValues) => {
+    await mutateAsync(values).catch(console.log);
     // TODO: handle errors
   };
 

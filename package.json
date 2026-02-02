@@ -26,9 +26,10 @@
   },
   "dependencies": {
     "@fontsource/ruda": "^5.2.8",
-    "@mantine/core": "^8.3.11",
-    "@mantine/form": "^8.3.13",
-    "@mantine/hooks": "^8.3.11",
+    "@mantine/core": "^8.3.14",
+    "@mantine/form": "^8.3.14",
+    "@mantine/hooks": "^8.3.14",
+    "@mantine/notifications": "^8.3.14",
     "@manufac/react-components-potli": "^1.0.10",
     "@tabler/icons-react": "^3.36.1",
     "@tanstack/react-query": "^5.90.19",
