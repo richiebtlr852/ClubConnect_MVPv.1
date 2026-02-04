@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 import type { FirebaseOptions } from "firebase/app";
 
 const FirebaseConfig: FirebaseOptions = {
-  apiKey: "AIzaSyAD3yr_HzeNyyHD1sadzopbZPgCLZU88WM",
-  authDomain: "club-sponsorship-poc.firebaseapp.com",
-  projectId: "club-sponsorship-poc",
-  storageBucket: "club-sponsorship-poc.appspot.com",
-  messagingSenderId: "1052497809750",
-  appId: "G-9HCW17LZZP",
+  apiKey: "AIzaSyABw5prmfxH-9U9wTAk1qe2sqvM3dIxqts",
+  authDomain: "clubconnect-mvp-v1.firebaseapp.com",
+  projectId: "clubconnect-mvp-v1",
+  storageBucket: "clubconnect-mvp-v1.firebasestorage.app",
+  messagingSenderId: "109707269735",
+  appId: "1:109707269735:web:4eacd6d8a2056876f6e6c2",
 };
 
 const FirebaseApp = initializeApp(FirebaseConfig);

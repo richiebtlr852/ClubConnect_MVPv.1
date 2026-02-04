@@ -72,9 +72,13 @@ If you need to switch to a new Firebase account or project, follow these steps:
 #### Authentication
 1. Go to **Firebase Console → Build → Authentication → Get Started**.
 2. Enable the **Email/Password** sign-in provider.
+
+### 3. Update the Project Config (Web)
+Locate the file `src/lib/firebase-config.ts` and replace the existing `FirebaseConfig` object with your new credentials.
+
 ---
 
-### Firebase Authentication: Allowing email sign in and password reset
+## Firebase Authentication: Allowing email sign in and password reset
   
 Understanding Email Enumeration Protection
 
@@ -93,13 +97,15 @@ Steps
   - Go to **Authentication → Settings -> User actions** in the Firebase console.
   - Make sure **Email enumeration protection** is turned **OFF**.
 
-- **Firestore Database**:
+---
+
+## Firestore Database
+
   1. Go to **Firestore Database** > **Create Database**.
   2. Start in **Production Mode** or **Test Mode** (Note: Test mode expires in 30 days).
   3. Choose the desired region.
 
-### 3. Update the Project Config (Web)
-Locate the file `src/lib/firebase-config.ts` and replace the existing `FirebaseConfig` object with your new credentials.
+---
 
 ## Deployment
 
@@ -129,105 +135,187 @@ The project will be deployed from the `dist/bundle` directory as specified in `f
 
 ## Email Service (Firestore → Send Email)
 
-The application uses the **Firebase “Trigger Email from Firestore” extension** to send sponsor invitation emails when a Firestore document is created.
+The application uses the **Firebase "Trigger Email from Firestore" extension** to send sponsor invitation emails when a Firestore document is created.
 
-Extension reference:  
-https://extensions.dev/extensions/firebase/firestore-send-email
+**Extension Reference:** https://extensions.dev/extensions/firebase/firestore-send-email
 
 ---
 
-### Extension Setup Locally
+## Setting Up Email Service
 
-To install and manage extensions, you can also use the Firebase CLI:
+### Prerequisites
 
-#### Step 1: 
-Run the following command to install the CLI or update to the latest CLI version.
+Before installing the extension, you need:
+
+1. **Gmail account** with 2-Step Verification enabled
+2. **Gmail App Password** (16-character password for SMTP access)
+
+---
+
+### Step 1: Generate Gmail App Password
+
+#### 1.1 Enable 2-Step Verification
+1. Go to [Google Account Security](https://myaccount.google.com/security)
+2. Enable **2-Step Verification** if not already enabled
+
+<img src="./docs/images/gmail-security-settings.png" alt="Gmail Security Settings" width="600"/>
+
+#### 1.2 Create App Password
+1. Search for **"app password"** in Google Account settings
+2. Click **"Create new app password"**
+3. Enter name: `Firebase Email Extension`
+4. Click **Create**
+
+<img src="./docs/images/gmail-app-password-search.png" alt="App Password Search" width="600"/>
+
+<img src="./docs/images/gmail-create-app-password.png" alt="Create App Password" width="500"/>
+
+#### 1.3 Copy Password
+1. Copy the 16-character password
+2. **⚠️ CRITICAL:** Remove ALL spaces before using
+   - Example: `abcd efgh ijkl mnop` → `abcdefghijklmnop`
+
+<img src="./docs/images/gmail-app-password-generated.png" alt="Generated Password" width="500"/>
+
+---
+
+### Step 2: Install Extension
+
+#### Option A: Using Firebase CLI (Recommended for Local Development)
+
 ```bash
+# Install Firebase CLI
 yarn global add firebase-tools
-```
 
-#### Step 2: 
-Set up a new Firebase project directory or navigate to an existing one
+# Login to Firebase
+firebase login
 
-#### Step 3: 
-Add this extension to your extension manifest by running 
-```bash
+# Install the extension
 firebase ext:install firebase/firestore-send-email --project=projectId_or_alias
-```
 
-#### Step 4 (Optional): 
-Test this extension locally with the Emulator Suite 
-```bash
-firebase emulators:start
-```
-
-#### Step 5: 
-Deploy the extension instances in your manifest to your project 
-```bash
+# Deploy
 firebase deploy --only extensions --project=projectId_or_alias
 ```
 
-OR
+#### Option B: Using Firebase Console (Manual Setup)
 
-### Extension Setup From Firebase Console
-
-#### 1. Install the Extension
-1. Go to **Firebase Console** → **Extensions**
+1. Go to [Firebase Console](https://console.firebase.google.com/) → **Extensions**
 2. Click **Install Extension**
-3. Search for **Trigger Email from Firestore**
-4. Select your Firebase project and complete the installation
+3. Search for **"Trigger Email from Firestore"**
+4. Click **Install in console**
 
 ---
 
-#### 2. Extension Configuration
+### Step 3: Configure Extension
 
-Configure the extension with the following values during installation:
+During installation, configure with these **required** settings:
 
-- **Firestore collection path**
-  ```text
-  mail
-  ```
+| Setting | Value | Notes |
+|---------|-------|-------|
+| **Firestore Instance Location** | `asia-south2` (or your region) | Choose closest region |
+| **Authentication Type** | `Username & Password` | For Gmail SMTP |
+| **SMTP connection URI** | `smtps://your-email@gmail.com:YOUR_APP_PASSWORD@smtp.gmail.com:465` | **Remove spaces from password!** |
+| **OAuth2 SMTP Port** | `465` | Gmail SMTP port |
+| **Use secure OAuth2 connection?** | `Yes` | Must be enabled |
+| **Email documents collection** | `mail` | Firestore collection name |
+| **Default FROM address** | `your-email@gmail.com` | Your Gmail address |
+| **Firestore TTL type** | `Week` | Auto-delete emails after |
+| **Firestore TTL value** | `1` | 1 week |
 
-- **Email provider**
-  - Gmail or SMTP
-  - Ensure the sender email is verified
+#### SMTP Connection URI Format
 
-- **Default sender**
-  ```text
-  Club Sponsorship Team <noreply@yourclub.com>
-  ```
+```text
+smtps://test@manufacanalytics.com:abcdefghijklmnop@smtp.gmail.com:465
+```
 
-- **Authorized users**
-  - Keep default unless custom access control is required
+**Breakdown:**
+- `smtps://` = Secure SMTP protocol
+- `test@manufacanalytics.com` = Your Gmail
+- `abcdefghijklmnop` = App password (**NO SPACES!**)
+- `smtp.gmail.com:465` = Gmail SMTP server and port
 
 ---
 
-### Sending Emails
+### Step 4: Test Email Sending
 
-Emails are automatically sent whenever a document is added to the `mail` collection in Firestore.
+Add a document to the `mail` collection in Firestore:
 
-#### Example Firestore Document
-```ts
-{
-  to: ["sponsor@email.com"],
+```javascript
+const emailDoc = {
+  to: ["recipient@example.com"],
   message: {
-    subject: "You're invited to sponsor our club!",
-    html: "<p>Please click the link below to view the sponsorship package.</p>"
+    subject: "Test Email",
+    html: "<h1>Hello!</h1><p>This is a test.</p>"
+  }
+};
+
+await db.collection('mail').add(emailDoc);
+```
+
+Check status in Firestore:
+- `delivery.state: "SUCCESS"` = Email sent ✅
+- `delivery.state: "ERROR"` = Check `delivery.error` for details ❌
+
+---
+
+### Sending Emails in Your App
+
+```typescript
+// Sponsor invitation example
+const sponsorEmail = {
+  to: ["sponsor@company.com"],
+  message: {
+    subject: "You're Invited to Sponsor Our Club!",
+    html: `
+      <div style="font-family: Arial, sans-serif;">
+        <h1>Sponsorship Invitation</h1>
+        <p>Dear Sponsor,</p>
+        <p>We would like to invite you to become a sponsor.</p>
+        <a href="https://yourclub.com/packages/123" 
+           style="background: #007bff; color: white; padding: 10px 20px; 
+                  text-decoration: none; border-radius: 5px;">
+          View Package
+        </a>
+      </div>
+    `
+  }
+};
+
+await db.collection('mail').add(sponsorEmail);
+```
+
+---
+
+### Troubleshooting
+
+| Error | Solution |
+|-------|----------|
+| **"Invalid login: 535-5.7.8"** | App password has spaces or is incorrect. Regenerate and remove ALL spaces. |
+| **"SMTP connection failed"** | Check URI format and ensure port is `465` and secure connection is `Yes`. |
+| **Emails not sending** | Verify `mail` collection name, check Firebase Extensions logs, ensure sender email matches Gmail. |
+| **"Parameter not set" for SMTP password** | This is normal - password is in the URI. Leave SMTP password field empty. |
+
+---
+
+### Security Best Practices
+
+```text
+// Firestore Security Rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /mail/{emailId} {
+      allow create: if request.auth != null;  // Only authenticated users
+      allow read, update, delete: if false;    // Only extension can access
+    }
   }
 }
 ```
 
-Email documents can be created from:
-- Client-side logic after validation
-- Firebase Cloud Functions (recommended for secure flows)
-
----
-
-### Deployment Notes
-
-- The extension is deployed automatically when installed
-- No additional deployment steps are required
-- Emails work in both development and production environments as long as Firestore writes succeed
+**Important:**
+- Never commit app passwords to version control
+- Rotate app passwords periodically
+- Monitor email logs in Firebase Console
 
 
 
