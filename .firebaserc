@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "club-sponsorship-poc"
-  }
+    "default": "clubconnect-mvp-v1"
+  },
+  "targets": {},
+  "etags": {}
 }
