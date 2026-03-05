@@ -27,10 +27,12 @@ export function useGetPackageById(packageId: string | undefined): UseQueryResult
   return useQuery({
     queryKey: ["packages", packageId],
     queryFn: async () => {
-      if (!packageId) return null;
+      if (typeof packageId !== "string" || packageId.length === 0) {
+        return null;
+      }
       return await PackageService.getPackageById(packageId);
     },
-    enabled: !!packageId,
+    enabled: typeof packageId === "string" && packageId.length > 0,
   });
 }
 
@@ -41,10 +43,12 @@ export function useGetPackagesByClubId(clubId: string | undefined): UseQueryResu
   return useQuery({
     queryKey: ["packages", "club", clubId],
     queryFn: async () => {
-      if (!clubId) return [];
+      if (typeof clubId !== "string" || clubId.length === 0) {
+        return [];
+      }
       return await PackageService.getPackagesByClubId(clubId);
     },
-    enabled: !!clubId,
+    enabled: typeof clubId === "string" && clubId.length > 0,
   });
 }
 

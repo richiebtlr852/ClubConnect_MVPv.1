@@ -40,8 +40,8 @@ export function CreatePackagePage(): JSX.Element {
       validate: zod4Resolver(PackageSchema),
     });
 
-  const handleSubmit = async (values: PackageSchemaValues) => {
-    if (clubDetails && user?.uid) {
+  const handleSubmit = async (values: PackageSchemaValues): Promise<void> => {
+    if (clubDetails !== null && typeof user?.uid === "string" && user.uid.length > 0) {
       try {
         await createPackage({
           ...values,

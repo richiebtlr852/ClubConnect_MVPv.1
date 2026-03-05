@@ -8,6 +8,7 @@ import { Formik, Form } from "formik";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import * as Yup from "yup";
+import type { FormikHelpers } from "formik";
 import type { JSX } from "react";
 
 const SignUpSchema = Yup.object().shape({
@@ -40,12 +41,16 @@ export function SignUpPage(): JSX.Element {
     },
   });
 
-  const handleSubmit = async (values: SignUpFormValues, { setSubmitting }: any) => {
+  const handleSubmit = async (
+    values: SignUpFormValues,
+    { setSubmitting }: FormikHelpers<SignUpFormValues>,
+  ): Promise<void> => {
     setError("");
     try {
       await mutateAsync(values);
-    } catch (err: any) {
-      setError(err.message || "Failed to create account. Please try again.");
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message;
+      setError(errorMessage);
       console.error("Sign up error:", err);
     } finally {
       setSubmitting(false);
@@ -67,24 +72,28 @@ export function SignUpPage(): JSX.Element {
           validationSchema={SignUpSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting }) => (
-            <Form className="flex flex-col gap-6">
-              <FormInput name="name" label="Club Name" />
-              <FormInput name="suburb" label="Suburb" />
-              <FormInput name="email" label="Email" type="email" />
-              <FormInput name="password" label="Password" type="password" />
+          {({ isSubmitting }): JSX.Element => {
+            return (
+              <Form className="flex flex-col gap-6">
+                <FormInput name="name" label="Club Name" />
+                <FormInput name="suburb" label="Suburb" />
+                <FormInput name="email" label="Email" type="email" />
+                <FormInput name="password" label="Password" type="password" />
 
-              {error && <div className="text-red-500 text-sm text-center font-sans">{error}</div>}
+                {error.length > 0 && (
+                  <div className="text-red-500 text-sm text-center font-sans">{error}</div>
+                )}
 
-              <div className="flex justify-center mt-6">
-                <AuthButton type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Creating..." : "Create Account"}
-                </AuthButton>
-              </div>
+                <div className="flex justify-center mt-6">
+                  <AuthButton type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Creating..." : "Create Account"}
+                  </AuthButton>
+                </div>
 
-              <AuthFormFooter text="Already have an account?" linkText="Login" linkTo="/login" />
-            </Form>
-          )}
+                <AuthFormFooter text="Already have an account?" linkText="Login" linkTo="/login" />
+              </Form>
+            );
+          }}
         </Formik>
       </div>
     </AuthLayout>

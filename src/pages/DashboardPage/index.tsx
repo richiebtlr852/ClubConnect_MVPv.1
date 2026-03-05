@@ -30,7 +30,7 @@ export function DashboardPage(): JSX.Element {
           </Stack>
         </Group>
 
-        {clubDetails ? (
+        {clubDetails !== null ? (
           <Paper withBorder p="xl" radius="md" bg="var(--mantine-color-blue-0)">
             <Group>
               <ThemeIcon size={60} radius="md" variant="light">

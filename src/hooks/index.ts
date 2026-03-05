@@ -1,5 +1,5 @@
 import { FirebaseAuth, FirebaseFirestore } from "../lib/firebase-config";
-import { signUp, onAuthStateChange, ClubService } from "../services";
+import { signUp, ClubService } from "../services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { collection, doc, getDocs, query, setDoc, Timestamp } from "firebase/firestore";
 import { useMemo } from "react";

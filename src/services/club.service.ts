@@ -1,15 +1,5 @@
 import { FirebaseFirestore } from "../lib/firebase-config";
-import {
-  collection,
-  doc,
-  setDoc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-  limit,
-  Timestamp,
-} from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, getDocs, query, where, limit, Timestamp } from "firebase/firestore";
 import type { Club } from "../schemas";
 
 export interface CreateClubData {
@@ -19,7 +9,7 @@ export interface CreateClubData {
   createdBy: string;
 }
 
-const COLLECTION_NAME = "club";
+const CollectionName = "club";
 
 /**
  * Create a new club
@@ -27,7 +17,7 @@ const COLLECTION_NAME = "club";
  */
 export async function createClub(data: CreateClubData): Promise<Club> {
   try {
-    const clubsRef = collection(FirebaseFirestore, COLLECTION_NAME);
+    const clubsRef = collection(FirebaseFirestore, CollectionName);
     const docRef = doc(clubsRef);
     const timestamp = Timestamp.now();
 
@@ -52,7 +42,7 @@ export async function createClub(data: CreateClubData): Promise<Club> {
  */
 export async function getClubById(clubId: string): Promise<Club | null> {
   try {
-    const docRef = doc(FirebaseFirestore, COLLECTION_NAME, clubId);
+    const docRef = doc(FirebaseFirestore, CollectionName, clubId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -72,7 +62,7 @@ export async function getClubById(clubId: string): Promise<Club | null> {
  */
 export async function getClubByUserId(userId: string): Promise<Club | null> {
   try {
-    const clubsRef = collection(FirebaseFirestore, COLLECTION_NAME);
+    const clubsRef = collection(FirebaseFirestore, CollectionName);
     const q = query(clubsRef, where("createdBy", "==", userId), limit(1));
     const querySnapshot = await getDocs(q);
 

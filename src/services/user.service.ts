@@ -26,9 +26,7 @@ export interface UpdateUserProfileData {
  * Create a new user profile
  * Future: POST /api/users
  */
-export function createUserProfile(
-  data: CreateUserProfileData
-): UserProfile {
+export function createUserProfile(data: CreateUserProfileData): UserProfile {
   // TODO: Implement Firestore logic
   // const db = getFirestore();
   // const userRef = doc(db, "users", data.uid);
@@ -52,10 +50,10 @@ export function createUserProfile(
  * Get user profile by ID
  * Future: GET /api/users/:id
  */
-export function getUserProfile(_uid: string): UserProfile | null {
+export function getUserProfile(): UserProfile | null {
   // TODO: Implement Firestore logic
   // const db = getFirestore();
-  // const userRef = doc(db, "users", _uid);
+  // const userRef = doc(db, "users", uid);
   // const userSnap = await getDoc(userRef);
   //
   // if (userSnap.exists()) {
@@ -69,15 +67,12 @@ export function getUserProfile(_uid: string): UserProfile | null {
  * Update user profile
  * Future: PATCH /api/users/:id
  */
-export function updateUserProfile(
-  _uid: string,
-  _data: UpdateUserProfileData
-): void {
+export function updateUserProfile(): void {
   // TODO: Implement Firestore logic
   // const db = getFirestore();
-  // const userRef = doc(db, "users", _uid);
+  // const userRef = doc(db, "users", uid);
   // await updateDoc(userRef, {
-  //   ..._data,
+  //   ...data,
   //   updatedAt: new Date(),
   // });
 }
@@ -87,12 +82,12 @@ export function updateUserProfile(
  * Future: GET /api/users/me
  */
 export function getCurrentUserProfile(): UserProfile | null {
-  const currentUser = FirebaseAuth.currentUser;
+  const { currentUser } = FirebaseAuth;
   if (currentUser === null) {
     return null;
   }
 
-  return getUserProfile(currentUser.uid);
+  return getUserProfile();
 }
 
 // Export as UserService for backward compatibility

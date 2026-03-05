@@ -39,7 +39,7 @@ export function LoginPage(): JSX.Element {
       });
       void navigate("/");
     } catch (err: unknown) {
-      const errorMessage = (err as Error).message ?? "Invalid email or password. Please try again.";
+      const errorMessage = (err as Error).message;
       setError(errorMessage);
       console.error("Login error:", err);
     } finally {

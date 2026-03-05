@@ -6,6 +6,14 @@ import type { JSX } from "react";
 export function ErrorPage(): JSX.Element {
   const navigate = useNavigate();
 
+  const handleGoHome = (): void => {
+    void navigate("/");
+  };
+
+  const handleGoBack = (): void => {
+    void navigate(-1);
+  };
+
   return (
     <Container size="md" style={{ minHeight: "100vh", display: "flex", alignItems: "center" }}>
       <Stack align="center" gap="xl" style={{ width: "100%", textAlign: "center" }}>
@@ -21,16 +29,16 @@ export function ErrorPage(): JSX.Element {
             Page Not Found
           </Title>
           <Text size="lg" c="dimmed" maw={500}>
-            Sorry, the page you are looking for doesn't exist or has been moved. The link you
+            Sorry, the page you are looking for doesn&apos;t exist or has been moved. The link you
             followed may be broken or the page may have been removed.
           </Text>
         </Stack>
 
         <Group gap="md">
-          <Button size="lg" leftSection={<IconHome size={20} />} onClick={() => navigate("/")}>
+          <Button size="lg" leftSection={<IconHome size={20} />} onClick={handleGoHome}>
             Go to Dashboard
           </Button>
-          <Button size="lg" variant="light" onClick={() => navigate(-1)}>
+          <Button size="lg" variant="light" onClick={handleGoBack}>
             Go Back
           </Button>
         </Group>

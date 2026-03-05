@@ -31,7 +31,7 @@ export interface UpdatePackageData {
   benefits?: Array<{ id: string; text: string }>;
 }
 
-const COLLECTION_NAME = "packages";
+const CollectionName = "packages";
 
 /**
  * Create a new package
@@ -39,7 +39,7 @@ const COLLECTION_NAME = "packages";
  */
 export async function createPackage(data: CreatePackageData): Promise<PackageSchemaValues> {
   try {
-    const packagesRef = collection(FirebaseFirestore, COLLECTION_NAME);
+    const packagesRef = collection(FirebaseFirestore, CollectionName);
     const docRef = doc(packagesRef);
     const timestamp = Timestamp.now();
 
@@ -64,7 +64,7 @@ export async function createPackage(data: CreatePackageData): Promise<PackageSch
  */
 export async function getPackageById(packageId: string): Promise<PackageSchemaValues | null> {
   try {
-    const docRef = doc(FirebaseFirestore, COLLECTION_NAME, packageId);
+    const docRef = doc(FirebaseFirestore, CollectionName, packageId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -84,7 +84,7 @@ export async function getPackageById(packageId: string): Promise<PackageSchemaVa
  */
 export async function getPackagesByClubId(clubId: string): Promise<PackageSchemaValues[]> {
   try {
-    const packagesRef = collection(FirebaseFirestore, COLLECTION_NAME);
+    const packagesRef = collection(FirebaseFirestore, CollectionName);
     const q = query(packagesRef, where("clubID", "==", clubId));
     const querySnapshot = await getDocs(q);
 
@@ -104,12 +104,9 @@ export async function getPackagesByClubId(clubId: string): Promise<PackageSchema
  * Update a package
  * Future: PATCH /api/packages/:id
  */
-export async function updatePackage(
-  packageId: string,
-  data: UpdatePackageData
-): Promise<void> {
+export async function updatePackage(packageId: string, data: UpdatePackageData): Promise<void> {
   try {
-    const docRef = doc(FirebaseFirestore, COLLECTION_NAME, packageId);
+    const docRef = doc(FirebaseFirestore, CollectionName, packageId);
     await updateDoc(docRef, {
       ...data,
       updatedAt: Timestamp.now(),
@@ -126,7 +123,7 @@ export async function updatePackage(
  */
 export async function deletePackage(packageId: string): Promise<void> {
   try {
-    const docRef = doc(FirebaseFirestore, COLLECTION_NAME, packageId);
+    const docRef = doc(FirebaseFirestore, CollectionName, packageId);
     await deleteDoc(docRef);
   } catch (error: unknown) {
     console.error("deletePackage error:", error);

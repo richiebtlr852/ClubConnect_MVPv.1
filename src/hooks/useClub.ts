@@ -10,10 +10,12 @@ export function useGetClubByUserId(userId: string | undefined): UseQueryResult<C
   return useQuery({
     queryKey: ["club", "user", userId],
     queryFn: async () => {
-      if (!userId) return null;
+      if (typeof userId !== "string" || userId.length === 0) {
+        return null;
+      }
       return await ClubService.getClubByUserId(userId);
     },
-    enabled: !!userId,
+    enabled: typeof userId === "string" && userId.length > 0,
   });
 }
 
@@ -24,9 +26,11 @@ export function useGetClubById(clubId: string | undefined): UseQueryResult<Club 
   return useQuery({
     queryKey: ["club", clubId],
     queryFn: async () => {
-      if (!clubId) return null;
+      if (typeof clubId !== "string" || clubId.length === 0) {
+        return null;
+      }
       return await ClubService.getClubById(clubId);
     },
-    enabled: !!clubId,
+    enabled: typeof clubId === "string" && clubId.length > 0,
   });
 }
