@@ -41,7 +41,12 @@ export function CreatePackagePage(): JSX.Element {
     });
 
   const handleSubmit = async (values: PackageSchemaValues): Promise<void> => {
-    if (clubDetails !== null && typeof user?.uid === "string" && user.uid.length > 0) {
+    if (
+      clubDetails !== null &&
+      clubDetails !== undefined &&
+      typeof user?.uid === "string" &&
+      user.uid.length > 0
+    ) {
       try {
         await createPackage({
           ...values,

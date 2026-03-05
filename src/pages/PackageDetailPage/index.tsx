@@ -26,7 +26,7 @@ export function PackageDetailPage(): JSX.Element {
   return (
     <Container size="lg">
       <Skeleton visible={isLoading}>
-        {error !== null || packageDetail === null ? (
+        {error !== null || packageDetail === null || packageDetail === undefined ? (
           <Card withBorder radius="md" ta="center">
             <Text c="red" size="lg" mb="md">
               Failed to load package detail
