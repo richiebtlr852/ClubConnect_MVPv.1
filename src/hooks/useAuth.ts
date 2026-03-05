@@ -1,20 +1,19 @@
-import { FirebaseAuth } from "../lib/firebase-config";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChange, signOutUser } from "../services";
 import { useEffect, useState, useCallback } from "react";
-import type { User } from "firebase/auth";
+import type { AuthUser } from "../services";
 
 interface UseAuthReturn {
-  user: User | null;
+  user: AuthUser | null;
   isLoading: boolean;
   logout: () => Promise<void>;
 }
 
 export function useAuth(): UseAuthReturn {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(FirebaseAuth, (currentUser) => {
+    const unsubscribe = onAuthStateChange((currentUser) => {
       setUser(currentUser);
       setIsLoading(false);
     });
@@ -25,7 +24,7 @@ export function useAuth(): UseAuthReturn {
   }, []);
 
   const logout = useCallback(async () => {
-    await signOut(FirebaseAuth);
+    await signOutUser();
     setUser(null);
   }, []);
 

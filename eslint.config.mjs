@@ -8,4 +8,9 @@ export default [
     ignores: ["*.config.js", ".storybook/**/*"],
   },
   ...configs["flat/recommended"],
+  {
+    rules: {
+      "single-return/single-return": "off",
+    },
+  },
 ];

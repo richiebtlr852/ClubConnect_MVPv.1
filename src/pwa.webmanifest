@@ -1,6 +1,6 @@
 {
-  "short_name": "PWA",
-  "name": "PWA",
+  "short_name": "ClubConnect.ai",
+  "name": "ClubConnect.ai",
   "icons": [
     {
       "src": "./icon-192.png",
@@ -24,5 +24,5 @@
   "start_url": "/",
   "scope": "/",
   "theme_color": "#EBFF00",
-  "description": "PWA"
+  "description": "ClubConnect.ai"
 }

@@ -1,16 +1,40 @@
-import { Stack, Title, Anchor } from "@mantine/core";
-import { NavLink } from "react-router";
+import { Container, Title, Text, Button, Group, Stack, ThemeIcon } from "@mantine/core";
+import { IconError404, IconHome } from "@tabler/icons-react";
+import { useNavigate } from "react-router";
+import type { JSX } from "react";
 
-export function ErrorPage() {
+export function ErrorPage(): JSX.Element {
+  const navigate = useNavigate();
+
   return (
-    <Stack align="center">
-      <Title order={5}>Sorry this page is not available!</Title>
-      <Title order={5}>
-        The link you have used maybe broken or page has been removed. Go back to{" "}
-        <Anchor to="/" component={NavLink}>
-          Home Page
-        </Anchor>
-      </Title>
-    </Stack>
+    <Container size="md" style={{ minHeight: "100vh", display: "flex", alignItems: "center" }}>
+      <Stack align="center" gap="xl" style={{ width: "100%", textAlign: "center" }}>
+        <ThemeIcon size={120} radius="xl" variant="light" color="red">
+          <IconError404 size={80} />
+        </ThemeIcon>
+
+        <Stack gap="md" align="center">
+          <Title order={1} size="3rem">
+            404
+          </Title>
+          <Title order={2} size="1.5rem" fw={600}>
+            Page Not Found
+          </Title>
+          <Text size="lg" c="dimmed" maw={500}>
+            Sorry, the page you are looking for doesn't exist or has been moved. The link you
+            followed may be broken or the page may have been removed.
+          </Text>
+        </Stack>
+
+        <Group gap="md">
+          <Button size="lg" leftSection={<IconHome size={20} />} onClick={() => navigate("/")}>
+            Go to Dashboard
+          </Button>
+          <Button size="lg" variant="light" onClick={() => navigate(-1)}>
+            Go Back
+          </Button>
+        </Group>
+      </Stack>
+    </Container>
   );
 }

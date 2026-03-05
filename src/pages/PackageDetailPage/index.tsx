@@ -1,5 +1,4 @@
-import { useGetDocuments } from "../../hooks";
-import { CollectionNames } from "../../schemas";
+import { useGetPackageById } from "../../hooks";
 import {
   Container,
   Paper,
@@ -16,27 +15,18 @@ import {
   Card,
 } from "@mantine/core";
 import { IconArrowLeft, IconCheck, IconCurrencyDollar, IconCalendar } from "@tabler/icons-react";
-import { limit, where } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router";
 import type { JSX } from "react";
 
 export function PackageDetailPage(): JSX.Element {
   const { id } = useParams();
   const navigate = useNavigate();
-  const {
-    data: packageDetail,
-    isLoading,
-    error,
-  } = useGetDocuments({
-    collectionName: CollectionNames.Packages,
-    queryConstraints: typeof id === "string" ? [where("id", "==", id), limit(1)] : undefined,
-    enabled: typeof id === "string",
-  });
+  const { data: packageDetail, isLoading, error } = useGetPackageById(id);
 
   return (
     <Container size="lg">
       <Skeleton visible={isLoading}>
-        {error !== null || packageDetail === undefined || packageDetail.length === 0 ? (
+        {error !== null || !packageDetail ? (
           <Card withBorder radius="md" ta="center">
             <Text c="red" size="lg" mb="md">
               Failed to load package detail
@@ -62,7 +52,7 @@ export function PackageDetailPage(): JSX.Element {
               >
                 <IconArrowLeft />
               </ActionIcon>
-              <Title>{packageDetail.at(0)?.name}</Title>
+              <Title>{packageDetail.name}</Title>
             </Group>
             <Paper withBorder p="xl" radius="md">
               <Stack gap="xl">
@@ -76,7 +66,7 @@ export function PackageDetailPage(): JSX.Element {
                         <IconCurrencyDollar />
                       </ThemeIcon>
                       <Text size="xl" fw={700}>
-                        {packageDetail.at(0)?.sponsorshipAmount.toLocaleString()}
+                        {packageDetail.sponsorshipAmount.toLocaleString()}
                       </Text>
                     </Group>
                   </Stack>
@@ -90,7 +80,7 @@ export function PackageDetailPage(): JSX.Element {
                         <IconCalendar />
                       </ThemeIcon>
                       <Text size="xl" fw={700}>
-                        {packageDetail.at(0)?.season}
+                        {packageDetail.season}
                       </Text>
                     </Group>
                   </Stack>
@@ -100,7 +90,7 @@ export function PackageDetailPage(): JSX.Element {
 
                 <Stack>
                   <Title order={4}>Description</Title>
-                  <Text>{packageDetail.at(0)?.description}</Text>
+                  <Text>{packageDetail.description}</Text>
                 </Stack>
 
                 <Stack>
@@ -114,7 +104,7 @@ export function PackageDetailPage(): JSX.Element {
                       </ThemeIcon>
                     }
                   >
-                    {packageDetail.at(0)?.benefits.map(({ id, text }) => {
+                    {packageDetail.benefits.map(({ id, text }) => {
                       return <List.Item key={id}>{text}</List.Item>;
                     })}
                   </List>

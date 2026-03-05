@@ -1,7 +1,7 @@
 import { PackageLabels, PackagePlaceholders, PackageFormNames } from "./utils";
-import { useCreateDocument, useGetDocuments } from "../../hooks";
+import { useCreatePackage, useGetClubByUserId } from "../../hooks";
 import { useAuth } from "../../hooks/useAuth";
-import { PackageSchema, CollectionNames } from "../../schemas";
+import { PackageSchema } from "../../schemas";
 import {
   Button,
   Card,
@@ -17,7 +17,6 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
-import { limit, where } from "firebase/firestore";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useNavigate } from "react-router";
 import type { PackageSchemaValues } from "../../schemas";
@@ -26,13 +25,8 @@ import type { JSX, MouseEventHandler } from "react";
 export function CreatePackagePage(): JSX.Element {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: clubDetails, isLoading } = useGetDocuments({
-    collectionName: CollectionNames.Club,
-    queryConstraints:
-      typeof user?.uid === "string" ? [where("createdBy", "==", user.uid), limit(1)] : undefined,
-    enabled: typeof user?.uid === "string",
-  });
-  const { mutateAsync: createPackage } = useCreateDocument(CollectionNames.Packages);
+  const { data: clubDetails, isLoading } = useGetClubByUserId(user?.uid);
+  const { mutateAsync: createPackage } = useCreatePackage();
   const { getInputProps, submitting, values, removeListItem, insertListItem, onSubmit, errors } =
     useForm<PackageSchemaValues>({
       initialValues: {
@@ -47,12 +41,12 @@ export function CreatePackagePage(): JSX.Element {
     });
 
   const handleSubmit = async (values: PackageSchemaValues) => {
-    if (Array.isArray(clubDetails) && clubDetails.length > 0 && typeof user?.uid === "string") {
+    if (clubDetails && user?.uid) {
       try {
         await createPackage({
           ...values,
-          clubID: clubDetails[0].id ?? "", // clubDetails is a single document for a single user its allways present in this Page as this page is inside the protected route
-          createdBy: user.uid, // user is always present in this Page as this page is inside the protected route
+          clubID: clubDetails.id ?? "",
+          createdBy: user.uid,
         });
         void navigate("/packages");
       } catch (error) {

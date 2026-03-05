@@ -1,7 +1,6 @@
 import { DashboardCards } from "./utils";
-import { useGetDocuments } from "../../hooks";
+import { useGetClubByUserId } from "../../hooks";
 import { useAuth } from "../../hooks/useAuth";
-import { CollectionNames } from "../../schemas";
 import {
   Container,
   SimpleGrid,
@@ -14,18 +13,12 @@ import {
   Paper,
 } from "@mantine/core";
 import { IconBuildingCommunity } from "@tabler/icons-react";
-import { where, limit } from "firebase/firestore";
 import { Link } from "react-router";
 import type { JSX } from "react";
 
 export function DashboardPage(): JSX.Element {
   const { user } = useAuth();
-  const { data: clubDetails } = useGetDocuments({
-    collectionName: CollectionNames.Club,
-    queryConstraints:
-      typeof user?.uid === "string" ? [where("createdBy", "==", user.uid), limit(1)] : undefined,
-    enabled: typeof user?.uid === "string",
-  });
+  const { data: clubDetails } = useGetClubByUserId(user?.uid);
 
   return (
     <Container size="lg">
@@ -37,15 +30,15 @@ export function DashboardPage(): JSX.Element {
           </Stack>
         </Group>
 
-        {Array.isArray(clubDetails) && clubDetails.length > 0 ? (
+        {clubDetails ? (
           <Paper withBorder p="xl" radius="md" bg="var(--mantine-color-blue-0)">
             <Group>
               <ThemeIcon size={60} radius="md" variant="light">
                 <IconBuildingCommunity size={34} />
               </ThemeIcon>
               <Stack gap={0}>
-                <Title order={3}>{clubDetails[0].name}</Title>
-                <Text c="dimmed">{clubDetails[0].suburb}</Text>
+                <Title order={3}>{clubDetails.name}</Title>
+                <Text c="dimmed">{clubDetails.suburb}</Text>
               </Stack>
             </Group>
           </Paper>

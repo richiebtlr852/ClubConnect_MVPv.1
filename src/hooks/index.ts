@@ -1,10 +1,9 @@
 import { FirebaseAuth, FirebaseFirestore } from "../lib/firebase-config";
-import { CollectionNames } from "../schemas";
+import { signUp, onAuthStateChange, ClubService } from "../services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, doc, getDocs, query, setDoc, Timestamp } from "firebase/firestore";
 import { useMemo } from "react";
-import type { SignupFormValues, Club, CollectionName, CollectionMap } from "../schemas";
+import type { SignupFormValues, CollectionName, CollectionMap } from "../schemas";
 import type { UseMutationOptions, UseMutationResult, UseQueryResult } from "@tanstack/react-query";
 import type { User } from "firebase/auth";
 import type { CollectionReference, QueryConstraint } from "firebase/firestore";
@@ -106,36 +105,51 @@ export function useCreateDocument<TCollectionName extends CollectionName>(
 export function useSignUp(
   options?: UseMutationOptions<User, Error, SignupFormValues>,
 ): UseMutationResult<User, Error, SignupFormValues> {
-  const { mutateAsync: createClubAccount } = useCreateDocument(CollectionNames.Club);
-
   return useMutation({
     ...options,
     mutationFn: async (values) => {
       const { email, password, name, suburb } = values;
-      const userCredential = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
-      const { user } = userCredential;
-      const newClub: Club = {
+
+      // Use signUp function to create user
+      const authUser = await signUp({
+        email,
+        password,
         name,
         suburb,
-        email,
-        createdBy: user.uid,
-      };
+      });
 
       try {
-        await createClubAccount(newClub);
+        // Use ClubService to create club
+        await ClubService.createClub({
+          name,
+          suburb,
+          email,
+          createdBy: authUser.uid,
+        });
       } catch (error) {
-        // If there's an error creating the club document, deleting the created user
         console.error("useSignup: Error creating club:", error);
-        try {
-          await user.delete();
-        } catch (deleteError) {
-          console.error("useSignup: Error deleting user after club creation failure:", deleteError);
-        }
-
         throw error;
       }
 
-      return user;
+      // Return Firebase User for compatibility
+      const firebaseUser = FirebaseAuth.currentUser;
+      if (firebaseUser === null) {
+        throw new Error("User not found after signup");
+      }
+
+      return firebaseUser;
     },
   });
 }
+
+// Export package hooks
+export {
+  useCreatePackage,
+  useGetPackageById,
+  useGetPackagesByClubId,
+  useUpdatePackage,
+  useDeletePackage,
+} from "./usePackages";
+
+// Export club hooks
+export { useGetClubByUserId, useGetClubById } from "./useClub";

@@ -1,6 +1,10 @@
 // As per Mantine Getting Started Guide | Ref: https://mantine.dev/getting-started/
 module.exports = {
   plugins: {
+    "postcss-import": {},
+    "tailwindcss/nesting": {},
+    tailwindcss: {},
+    autoprefixer: {},
     "postcss-preset-mantine": {},
     "postcss-simple-vars": {
       variables: {

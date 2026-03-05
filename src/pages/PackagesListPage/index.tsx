@@ -1,11 +1,9 @@
-import { useGetDocuments } from "../../hooks";
+import { useGetClubByUserId, useGetPackagesByClubId } from "../../hooks";
 import { useAuth } from "../../hooks/useAuth";
-import { CollectionNames } from "../../schemas";
 import { Button, Container, Group, Title, Stack, Tooltip, ActionIcon } from "@mantine/core";
 import { CustomTable } from "@manufac/react-components-potli";
 import { IconPlus, IconArrowRight } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { limit, where } from "firebase/firestore";
 import { useMemo } from "react";
 import { Link } from "react-router";
 import type { PackageSchemaValues } from "../../schemas";
@@ -14,24 +12,12 @@ import type { JSX } from "react";
 
 export function PackagesListPage(): JSX.Element {
   const { user } = useAuth();
-  const { data: clubDetails } = useGetDocuments({
-    collectionName: CollectionNames.Club,
-    queryConstraints:
-      typeof user?.uid === "string" ? [where("createdBy", "==", user.uid), limit(1)] : undefined,
-    enabled: typeof user?.uid === "string",
-  });
+  const { data: clubDetails } = useGetClubByUserId(user?.uid);
   const {
     data: packages,
     isLoading: isPackagesLoading,
     error: packagesError,
-  } = useGetDocuments({
-    collectionName: CollectionNames.Packages,
-    queryConstraints:
-      typeof clubDetails?.at(0)?.id === "string"
-        ? [where("clubID", "==", clubDetails.at(0)?.id)]
-        : undefined,
-    enabled: typeof clubDetails?.at(0)?.id === "string",
-  });
+  } = useGetPackagesByClubId(clubDetails?.id ?? undefined);
 
   // Adopted from https://github.com/manufac-analytics/mover/blob/main/apps/web/src/pages/Admin/index.tsx
   const packageListColumns = useMemo(() => {
@@ -54,11 +40,7 @@ export function PackagesListPage(): JSX.Element {
           return (
             <Group justify="flex-end">
               <Tooltip label="View Details">
-                <ActionIcon
-                  variant="light"
-                  component={Link}
-                  to={`/packages/${value ?? ""}`} // At this point, the packageData.id is always a string.
-                >
+                <ActionIcon variant="light" component={Link} to={`/packages/${value ?? ""}`}>
                   <IconArrowRight size={18} />
                 </ActionIcon>
               </Tooltip>

@@ -1,93 +1,92 @@
-import { SignupFormNames, SignupLabels, SignupPlaceholders } from "./utiils";
+import { AuthButton } from "../../components/AuthButton";
+import { AuthFormFooter } from "../../components/AuthFormFooter";
+import { AuthFormHeader } from "../../components/AuthFormHeader";
+import { AuthLayout } from "../../components/AuthLayout";
+import { FormInput } from "../../components/FormInput";
 import { useSignUp } from "../../hooks";
-import { SignupSchema } from "../../schemas";
-import {
-  TextInput,
-  PasswordInput,
-  Button,
-  Title,
-  Text,
-  Stack,
-  Container,
-  Card,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { zod4Resolver } from "mantine-form-zod-resolver";
-import { Link, useNavigate } from "react-router";
-import type { SignupFormValues } from "../../schemas";
+import { Formik, Form } from "formik";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import * as Yup from "yup";
 import type { JSX } from "react";
+
+const SignUpSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(2, "Club name must be at least 2 characters")
+    .required("Club name is required"),
+  suburb: Yup.string()
+    .min(2, "Suburb must be at least 2 characters")
+    .required("Suburb is required"),
+  email: Yup.string().email("Invalid email address").required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+});
+
+interface SignUpFormValues {
+  name: string;
+  suburb: string;
+  email: string;
+  password: string;
+}
 
 export function SignUpPage(): JSX.Element {
   const navigate = useNavigate();
+  const [error, setError] = useState("");
+
   const { mutateAsync } = useSignUp({
     onSuccess: () => {
       void navigate("/");
     },
   });
 
-  const { getInputProps, onSubmit, submitting } = useForm<SignupFormValues>({
-    initialValues: {
-      name: "",
-      suburb: "",
-      email: "",
-      password: "",
-    },
-    validate: zod4Resolver(SignupSchema),
-  });
-
-  const handleSubmit = async (values: SignupFormValues) => {
-    await mutateAsync(values).catch(console.log);
-    // TODO: handle errors
+  const handleSubmit = async (values: SignUpFormValues, { setSubmitting }: any) => {
+    setError("");
+    try {
+      await mutateAsync(values);
+    } catch (err: any) {
+      setError(err.message || "Failed to create account. Please try again.");
+      console.error("Sign up error:", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <Container size="lg">
-      <Stack>
-        <Stack align="center" gap={2}>
-          <Title>Create Club Account</Title>
-          <Text c="dimmed" size="sm">
-            Already have an account?{" "}
-            <Text component={Link} to="/login" size="sm" fw={700} c="blue">
-              Login
-            </Text>
-          </Text>
-        </Stack>
+    <AuthLayout>
+      <div className="w-full max-w-[600px]">
+        <AuthFormHeader title="Create a new Club Account" />
 
-        <Card withBorder radius="md">
-          <form onSubmit={onSubmit(handleSubmit)}>
-            <Stack>
-              <TextInput
-                label={SignupLabels.name}
-                placeholder={SignupPlaceholders.name}
-                withAsterisk
-                {...getInputProps(SignupFormNames.name)}
-              />
-              <TextInput
-                label={SignupLabels.suburb}
-                placeholder={SignupPlaceholders.suburb}
-                withAsterisk
-                {...getInputProps(SignupFormNames.suburb)}
-              />
-              <TextInput
-                label={SignupLabels.email}
-                placeholder={SignupPlaceholders.email}
-                withAsterisk
-                {...getInputProps(SignupFormNames.email)}
-              />
-              <PasswordInput
-                label={SignupLabels.password}
-                placeholder={SignupPlaceholders.password}
-                withAsterisk
-                {...getInputProps(SignupFormNames.password)}
-              />
+        <Formik
+          initialValues={{
+            name: "",
+            suburb: "",
+            email: "",
+            password: "",
+          }}
+          validationSchema={SignUpSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form className="flex flex-col gap-6">
+              <FormInput name="name" label="Club Name" />
+              <FormInput name="suburb" label="Suburb" />
+              <FormInput name="email" label="Email" type="email" />
+              <FormInput name="password" label="Password" type="password" />
 
-              <Button type="submit" fullWidth loading={submitting}>
-                Create Account
-              </Button>
-            </Stack>
-          </form>
-        </Card>
-      </Stack>
-    </Container>
+              {error && <div className="text-red-500 text-sm text-center font-sans">{error}</div>}
+
+              <div className="flex justify-center mt-6">
+                <AuthButton type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Creating..." : "Create Account"}
+                </AuthButton>
+              </div>
+
+              <AuthFormFooter text="Already have an account?" linkText="Login" linkTo="/login" />
+            </Form>
+          )}
+        </Formik>
+      </div>
+    </AuthLayout>
   );
 }

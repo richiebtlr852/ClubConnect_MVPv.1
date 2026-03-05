@@ -1,77 +1,87 @@
-// Adapted from https://github.com/manufac-analytics/mover/blob/main/apps/web/src/pages/Login/index.tsx
-import { FirebaseAuth } from "../../lib/firebase-config";
-import { Center, Stack, Title, Paper, Loader, Box, Text } from "@mantine/core";
-import { EmailAuthProvider, onAuthStateChanged } from "firebase/auth"; // Ref: https://firebase.google.com/docs/auth/web/start
-import * as FirebaseUI from "firebaseui"; // Ref: https://firebase.google.com/docs/auth/web/firebaseui
-import { useEffect, useMemo } from "react";
-import { useNavigate, Link } from "react-router";
+import { AuthButton } from "../../components/AuthButton";
+import { AuthFormFooter } from "../../components/AuthFormFooter";
+import { AuthFormHeader } from "../../components/AuthFormHeader";
+import { AuthLayout } from "../../components/AuthLayout";
+import { FormInput } from "../../components/FormInput";
+import { signIn } from "../../services";
+import { Formik, Form } from "formik";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import * as Yup from "yup";
+import type { FormikHelpers } from "formik";
 import type { JSX } from "react";
-import "firebaseui/dist/firebaseui.css"; // Ref: https://github.com/firebase/firebaseui-web
+
+const LoginSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email address").required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+});
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
 export function LoginPage(): JSX.Element {
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
-  const ui = useMemo(() => {
-    const ui = FirebaseUI.auth.AuthUI.getInstance() ?? new FirebaseUI.auth.AuthUI(FirebaseAuth);
-    return ui;
-  }, []);
-
-  useEffect(() => {
-    const uiConfig: FirebaseUI.auth.Config = {
-      callbacks: {
-        signInSuccessWithAuthResult: () => {
-          return false; // Prevent full page reload
-        },
-        uiShown: () => {
-          const loader = document.getElementById("loader");
-          if (loader !== null) {
-            loader.style.display = "none";
-          }
-        },
-      },
-      signInFlow: "popup",
-      // Disable the default Firebase user signup flow since additional fields are required during registration.
-      signInOptions: [
-        {
-          provider: EmailAuthProvider.PROVIDER_ID,
-          disableSignUp: {
-            status: true,
-          },
-        },
-      ],
-    };
-
-    // Start FirebaseUI
-    // Ref: https://firebase.google.com/docs/auth/web/firebaseui#using_firebaseui
-    ui.start("#firebaseui-auth-container", uiConfig);
-  }, [navigate, ui]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(FirebaseAuth, (user) => {
-      if (user !== null) {
-        void navigate("/");
-      }
-    });
-    return unsubscribe;
-  }, [navigate]);
+  const handleSubmit = async (
+    values: LoginFormValues,
+    { setSubmitting }: FormikHelpers<LoginFormValues>,
+  ): Promise<void> => {
+    setError("");
+    try {
+      await signIn({
+        email: values.email,
+        password: values.password,
+      });
+      void navigate("/");
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message ?? "Invalid email or password. Please try again.";
+      setError(errorMessage);
+      console.error("Login error:", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <Center>
-      <Stack align="center" gap={16}>
-        <Stack align="center" gap={2}>
-          <Title order={3}>Welcome back!</Title>
-          <Text c="dimmed" size="sm">
-            Don&apos;t have an account?{" "}
-            <Text component={Link} to="/signup" size="sm" fw={700} c="blue">
-              SignUp
-            </Text>
-          </Text>
-        </Stack>
-        <Box id="firebaseui-auth-container" w={450} />
-        <Paper id="loader" shadow="xs" radius="md" p="md" withBorder w="100%">
-          <Loader />
-        </Paper>
-      </Stack>
-    </Center>
+    <AuthLayout>
+      <div className="w-full max-w-[600px]">
+        <AuthFormHeader title="Welcome Back!" />
+
+        <Formik
+          initialValues={{
+            email: "",
+            password: "",
+          }}
+          validationSchema={LoginSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }): JSX.Element => {
+            return (
+              <Form className="flex flex-col gap-6">
+                <FormInput name="email" label="Email" type="email" />
+                <FormInput name="password" label="Password" type="password" />
+
+                {error.length > 0 && (
+                  <div className="text-red-500 text-sm text-center font-sans">{error}</div>
+                )}
+
+                <div className="flex justify-center mt-6">
+                  <AuthButton type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Logging in..." : "Login"}
+                  </AuthButton>
+                </div>
+
+                <AuthFormFooter text="Don't have an account?" linkText="Sign Up" linkTo="/signup" />
+              </Form>
+            );
+          }}
+        </Formik>
+      </div>
+    </AuthLayout>
   );
 }

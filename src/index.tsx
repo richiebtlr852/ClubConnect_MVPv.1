@@ -9,6 +9,7 @@ import "@fontsource/ruda/600.css";
 import "@fontsource/ruda/700.css";
 import "@fontsource/ruda/800.css";
 import "@fontsource/ruda/900.css";
+import "./styles/tailwind.css";
 
 const MantineTheme = createTheme({
   fontFamily: "Ruda, san-serif",
