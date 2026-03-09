@@ -2,6 +2,14 @@
   "projects": {
     "default": "clubconnect-mvp-v1"
   },
-  "targets": {},
+  "targets": {
+    "clubconnect-mvp-v1": {
+      "hosting": {
+        "v2": [
+          "clubconnect-mvp-v2"
+        ]
+      }
+    }
+  },
   "etags": {}
 }
