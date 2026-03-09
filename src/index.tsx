@@ -1,5 +1,4 @@
 import { Router } from "./routes";
-import { MantineProvider, createTheme } from "@mantine/core";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
@@ -11,15 +10,9 @@ import "@fontsource/ruda/800.css";
 import "@fontsource/ruda/900.css";
 import "./styles/tailwind.css";
 
-const MantineTheme = createTheme({
-  fontFamily: "Ruda, san-serif",
-}); // Ref: https://mantine.dev/theming/theme-object/#store-theme-override-object-in-a-variable
-
 const Root = createRoot(document.getElementById("root") as HTMLDivElement);
 Root.render(
   <StrictMode>
-    <MantineProvider theme={MantineTheme}>
-      <RouterProvider router={Router} />
-    </MantineProvider>
+    <RouterProvider router={Router} />
   </StrictMode>,
 );
