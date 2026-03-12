@@ -11,8 +11,8 @@ export function MainLayout({ children }: MainLayoutProps): JSX.Element {
     <div className="min-h-screen bg-white">
       <Sidebar />
       <TopHeader />
-      <main className="ml-64 pt-16">
-        <div className="px-5 py-5">{children}</div>
+      <main className="ml-[276px] pt-[88px]">
+        <div className="px-6 py-6">{children}</div>
       </main>
     </div>
   );

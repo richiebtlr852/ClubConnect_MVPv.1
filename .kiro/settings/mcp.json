@@ -3,7 +3,7 @@
     "figma": {
       "url": "https://mcp.figma.com/mcp",
       "type": "http",
-      "autoApprove": ["get_design_context"]
+      "autoApprove": ["get_design_context", "get_screenshot"]
     }
   }
 }

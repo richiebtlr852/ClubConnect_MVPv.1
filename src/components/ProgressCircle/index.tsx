@@ -1,54 +1,54 @@
+import { PieChart, Pie, ResponsiveContainer } from "recharts";
 import type { JSX } from "react";
+
+interface SegmentData {
+  percentage: number;
+  color: string;
+  label: string;
+}
 
 interface ProgressCircleProps {
   percentage: number;
   size?: number;
   strokeWidth?: number;
-  label?: string;
+  segments?: SegmentData[];
 }
 
 export function ProgressCircle({
   percentage,
   size = 124,
-  strokeWidth = 12,
-  label,
+  strokeWidth = 18,
+  segments = [],
 }: ProgressCircleProps): JSX.Element {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (percentage / 100) * circumference;
+  // Convert segments to recharts format
+  const chartData = segments.map((segment) => ({
+    name: segment.label,
+    value: segment.percentage,
+    fill: segment.color,
+  }));
 
   return (
     <div className="flex flex-col items-center">
       <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="transform -rotate-90">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#e5e7eb"
-            strokeWidth={strokeWidth}
-            fill="none"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#6366f1"
-            strokeWidth={strokeWidth}
-            fill="none"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            className="transition-all duration-500"
-          />
-        </svg>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              innerRadius={String(size / 2 - strokeWidth)}
+              outerRadius={String(size / 2)}
+              startAngle={90}
+              endAngle={-270}
+              dataKey="value"
+              stroke="none"
+            />
+          </PieChart>
+        </ResponsiveContainer>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-lg font-medium text-gray-900">{percentage}%</span>
+          <span className="text-lg font-normal text-black tracking-[0.5px]">{percentage}%</span>
         </div>
       </div>
-      {label !== undefined && label.length > 0 && (
-        <p className="text-xs text-gray-500 mt-2">{label}</p>
-      )}
     </div>
   );
 }

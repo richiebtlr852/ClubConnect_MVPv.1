@@ -1,8 +1,19 @@
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import type { JSX } from "react";
 
 interface ChartDataPoint {
   month: string;
-  value: number;
+  thisYear: number;
+  lastYear: number;
 }
 
 interface ChartCardProps {
@@ -10,109 +21,63 @@ interface ChartCardProps {
   subtitle: string;
   data: ChartDataPoint[];
   maxValue: number;
-  showLegend?: boolean;
 }
 
-export function ChartCard({
-  title,
-  subtitle,
-  data,
-  maxValue,
-  showLegend = true,
-}: ChartCardProps): JSX.Element {
-  const chartHeight = 200;
-  const chartWidth = 500;
-  const padding = { top: 20, right: 20, bottom: 40, left: 60 };
-
-  const xStep = (chartWidth - padding.left - padding.right) / (data.length - 1);
-  const yScale = (chartHeight - padding.top - padding.bottom) / maxValue;
-
-  const points = data
-    .map((point, index) => {
-      const x = padding.left + index * xStep;
-      const y = chartHeight - padding.bottom - point.value * yScale;
-      return `${String(x)},${String(y)}`;
-    })
-    .join(" ");
-
-  const gridLines = [0, 20000, 40000, 60000, 80000];
-
+export function ChartCard({ title, subtitle, data, maxValue }: ChartCardProps): JSX.Element {
   return (
-    <div>
-      <div className="flex items-start justify-between mb-4">
+    <div className="flex flex-col h-full">
+      <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-sm font-medium text-gray-900">{title}</h3>
-          <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+          <h3 className="text-sm font-normal text-black tracking-[0.5px]">{title}</h3>
+          <p className="text-xs text-black opacity-50 mt-0.5 tracking-[0.5px]">{subtitle}</p>
         </div>
-        <button className="px-3 py-1.5 text-xs text-indigo-600 border border-indigo-200 rounded hover:bg-indigo-50 transition-colors">
+        <button
+          type="button"
+          className="px-3 py-1.5 text-xs text-[#5a6acf] border border-[#5a6acf] rounded hover:bg-indigo-50 transition-colors tracking-[0.5px] flex-shrink-0"
+        >
           View Report
         </button>
       </div>
 
-      <div className="relative">
-        <svg width={chartWidth} height={chartHeight} className="overflow-visible">
-          {gridLines.map((value) => {
-            const y = chartHeight - padding.bottom - value * yScale;
-            return (
-              <g key={value}>
-                <line
-                  x1={padding.left}
-                  y1={y}
-                  x2={chartWidth - padding.right}
-                  y2={y}
-                  stroke="#e5e7eb"
-                  strokeWidth="1"
-                />
-                <text
-                  x={padding.left - 10}
-                  y={y + 4}
-                  textAnchor="end"
-                  className="text-xs fill-gray-400"
-                >
-                  ${String(value / 1000)}k
-                </text>
-              </g>
-            );
-          })}
-
-          <polyline
-            points={points}
-            fill="none"
-            stroke="#6366f1"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-
-          {data.map((point, index) => {
-            const x = padding.left + index * xStep;
-            const y = chartHeight - padding.bottom;
-            return (
-              <text
-                key={point.month}
-                x={x}
-                y={y + 20}
-                textAnchor="middle"
-                className="text-xs fill-gray-400"
-              >
-                {point.month}
-              </text>
-            );
-          })}
-        </svg>
-
-        {showLegend && (
-          <div className="flex items-center gap-6 mt-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-indigo-600" />
-              <span className="text-xs text-gray-600">This Year</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-gray-300" />
-              <span className="text-xs text-gray-600">Last Year</span>
-            </div>
-          </div>
-        )}
+      <div className="w-full flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#737b8b" }} stroke="#e5e7eb" />
+            <YAxis
+              domain={[0, maxValue]}
+              tick={{ fontSize: 11, fill: "#737b8b" }}
+              stroke="#e5e7eb"
+              tickFormatter={(value) => `$${String(value / 1000)}k`}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#ffffff",
+                border: "1px solid #e5e7eb",
+                borderRadius: "4px",
+                fontSize: "12px",
+              }}
+              formatter={(value) => `$${String(value)}`}
+            />
+            <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "5px" }} iconType="circle" />
+            <Line
+              type="monotone"
+              dataKey="thisYear"
+              stroke="#5a6acf"
+              strokeWidth={2.5}
+              dot={false}
+              name="This Year"
+            />
+            <Line
+              type="monotone"
+              dataKey="lastYear"
+              stroke="#d1d5db"
+              strokeWidth={2.5}
+              dot={false}
+              name="Last Year"
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

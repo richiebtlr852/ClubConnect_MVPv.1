@@ -146,33 +146,52 @@ export function Sidebar(): JSX.Element {
   const location = useLocation();
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col">
-      <div className="p-6 border-b border-gray-200">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="relative">
-            <span className="text-2xl font-semibold text-brand-blue">C</span>
-            <span className="text-2xl font-semibold text-light-cyan absolute left-2 top-2">C</span>
+    <aside className="w-[276px] bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-20">
+      <div className="px-5 py-6 border-b border-gray-200">
+        <Link to="/" className="flex items-center">
+          <div className="relative w-10 h-10 flex-shrink-0">
+            <span className="absolute left-0 top-0 text-[32px] font-semibold text-brand-blue leading-none">
+              C
+            </span>
+            <span className="absolute left-2 top-2.5 text-[32px] font-semibold text-light-cyan leading-none">
+              C
+            </span>
           </div>
-          <div className="ml-6">
-            <span className="text-lg font-semibold text-brand-blue">ClubConnect.</span>
-            <span className="text-lg font-medium text-gray-400">ai</span>
+          <div className="ml-3">
+            <span className="text-xl font-semibold text-brand-blue">ClubConnect.</span>
+            <span className="text-xl font-medium text-gray-400">ai</span>
           </div>
         </Link>
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-4">
+      <nav className="flex-1 overflow-y-auto py-4 px-2">
         {NavItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-6 py-3 text-base transition-colors ${
-                isActive ? "bg-primary-blue text-white" : "text-gray-700 hover:bg-gray-50"
+              className={`flex items-center gap-3 px-4 py-3 mb-1 rounded-lg transition-colors relative ${
+                isActive ? "bg-primary-blue text-white" : "text-[#374151] hover:bg-gray-50"
               }`}
             >
               {item.icon}
-              <span>{item.name}</span>
+              <span className="font-normal text-sm">{item.name}</span>
+              {isActive && (
+                <svg
+                  className="ml-auto w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              )}
             </Link>
           );
         })}
